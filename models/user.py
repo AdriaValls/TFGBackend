@@ -92,7 +92,7 @@ class UserModel(db.Model):
 
     @auth.verify_token
     def verify_token(token):
-        user = UsersModel.verify_auth_token(token)
+        user = UserModel.verify_auth_token(token)
         if user is not None:
             g.user = user
         else:

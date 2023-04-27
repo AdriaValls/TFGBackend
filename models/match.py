@@ -1,5 +1,9 @@
 from db import db
 from datetime import datetime
+from flask_httpauth import HTTPTokenAuth
+
+
+auth = HTTPTokenAuth(scheme="Bearer")
 
 class MatchModel(db.Model):
 
@@ -8,7 +12,7 @@ class MatchModel(db.Model):
     description = db.Column(db.String(280), unique=False, nullable=False)
     location = db.Column(db.String(280), unique=False, nullable=False)
     city = db.Column(db.String(280), unique=False, nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date = db.Column(db.String(280), nullable=False)
     numPlayers = db.Column(db.Integer, unique=False, nullable=False)
     sport = db.Column(db.String(), unique=False, nullable=False)
     ongoing = db.Column(db.Boolean, unique=False, nullable=False, default=True)

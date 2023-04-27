@@ -43,12 +43,12 @@ class Account(Resource):
 
     # Delete user
     @auth.login_required()
-    def delete(self, username):
-        if username is None:
+    def delete(self, user_id):
+        if user_id is None:
             return {"message": "No username specified."}, 400
-        if username != g.user.username:
+        if user_id != g.user.username:
             return {"message": "You can't delete someone else's account."}, 403
-        account = UserModel.get_by_username(username)
+        account = UserModel.id(user_id)
         if account is None:
             return {"message": "Could not find an account with that username."}, 404
         try:
