@@ -1,12 +1,13 @@
-from models.user import UserModel
+from models.user import UserModel, auth, g
 from flask_restful import Resource, reqparse
 
 
 # Account actions (register, update, delete)
 class Account(Resource):
 
-    def get(self, id):
-        match = UserModel.get_by_id(id)
+    @auth.login_required()
+    def get(self, user_id):
+        match = UserModel.get_by_id(user_id)
         if match:
             return {"match": match.json()}, 200
         return {"message": f"Could not find an a match with that id"}, 404
@@ -26,16 +27,32 @@ class Account(Resource):
         if UserModel.get_by_email(data["email"]):
             return {"message": "An account with this email already exists!"}, 409
         try:
-            new_match = UserModel(
+            new_account = UserModel(
                 data["username"],
-                data["password"],
                 data["email"],
                 data["description"],
                 data["is_admin"]
             )
-            new_match.save_to_db()
+            new_account.hash_password(data["password"])
+            new_account.save_to_db()
 
         except Exception:
             return {"message": f"Could not create user"}, 500
 
-        return {"user": new_match.json()}, 201
+        return {"user": new_account.json()}, 201
+
+    # Delete user
+    @auth.login_required()
+    def delete(self, username):
+        if username is None:
+            return {"message": "No username specified."}, 400
+        if username != g.user.username:
+            return {"message": "You can't delete someone else's account."}, 403
+        account = UserModel.get_by_username(username)
+        if account is None:
+            return {"message": "Could not find an account with that username."}, 404
+        try:
+            account.delete_from_db()
+        except Exception:
+            return {"message": "An error occurred deleting the account."}, 500
+        return {"message": "Account deleted successfully!"}, 200
