@@ -11,12 +11,16 @@ auth = HTTPTokenAuth(scheme="Bearer")
 
 
 class UserModel(db.Model):
+    __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(30), unique=True, nullable=False)
     description = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Integer, nullable=False)
+
+    owned_matches = db.relationship("MatchModel", back_populates="owner", cascade="all, delete-orphan")
 
     def __init__(self, username, email, description, is_admin):
         self.username = username
@@ -61,8 +65,7 @@ class UserModel(db.Model):
     def get_all(cls):
         return cls.query.all()
 
-        # Password Stuff
-
+    # Password Stuff
     def hash_password(self, password):
         self.password = pwd_context.hash(password)
 

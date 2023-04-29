@@ -6,11 +6,11 @@ from flask_restful import Resource, reqparse
 class Account(Resource):
 
     @auth.login_required()
-    def get(self, user_id):
-        match = UserModel.get_by_id(user_id)
-        if match:
-            return {"match": match.json()}, 200
-        return {"message": f"Could not find an a match with that id"}, 404
+    def get(self, id):
+        user = UserModel.get_by_id(id)
+        if user:
+            return {"user": user.json()}, 200
+        return {"message": f"Could not find a user with that id"}, 404
 
     def post(self):
         parser = reqparse.RequestParser()
@@ -43,12 +43,12 @@ class Account(Resource):
 
     # Delete user
     @auth.login_required()
-    def delete(self, user_id):
-        if user_id is None:
+    def delete(self, id):
+        if id is None:
             return {"message": "No username specified."}, 400
-        if user_id != g.user.username:
+        if id != g.user.username:
             return {"message": "You can't delete someone else's account."}, 403
-        account = UserModel.id(user_id)
+        account = UserModel.id(id)
         if account is None:
             return {"message": "Could not find an account with that username."}, 404
         try:

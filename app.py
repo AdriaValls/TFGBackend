@@ -9,6 +9,7 @@ from config import config
 from resources.accounts import Account
 from resources.login import Login
 from resources.matches import Match
+from resources.userMatches import OwnedMatches
 
 app = Flask(__name__)
 
@@ -26,6 +27,7 @@ api.add_resource(Account, "/account")
 api.add_resource(Login, "/login")
 
 api.add_resource(Match, "/match/<int:id>", "/match")
+api.add_resource(OwnedMatches, "/owned/<int:id>")
 
 
 @app.route('/')

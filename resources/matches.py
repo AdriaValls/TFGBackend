@@ -41,14 +41,15 @@ class Match(Resource):
                 data["sport"],
                 data["ongoing"],
             )
-            acc = UserModel.get_by_username(g.user.username)
+            owner = UserModel.get_by_username(g.user.username)
+            new_match.owner = owner
 
             new_match.save_to_db()
 
         except Exception:
             return {"message": "An error occurred creating the match."}, 500
 
-        return {"match": new_match.json(), "acc": acc.json()}, 201
+        return {"match": new_match.json()}, 201
 
     @auth.login_required()
     def delete(self, id):
