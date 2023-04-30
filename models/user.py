@@ -1,13 +1,21 @@
 import time
 
-from db import db
-from flask import current_app, g
+from sqlalchemy.orm import relationship
 
+from flask import current_app, g
 from flask_httpauth import HTTPTokenAuth
 from jwt import ExpiredSignatureError, InvalidSignatureError, decode, encode
 from passlib.apps import custom_app_context as pwd_context
 
+from db import db
+
 auth = HTTPTokenAuth(scheme="Bearer")
+
+player_in_match = db.Table("player_in_match",
+                           db.Column("id", db.Integer, primary_key=True),
+                           db.Column("player_id", db.Integer, db.ForeignKey("users.id")),
+                           db.Column("game_id", db.Integer, db.ForeignKey("matches.id")),
+                           db.Column("team", db.Integer))
 
 
 class UserModel(db.Model):
@@ -21,6 +29,8 @@ class UserModel(db.Model):
     is_admin = db.Column(db.Integer, nullable=False)
 
     owned_matches = db.relationship("MatchModel", back_populates="owner", cascade="all, delete-orphan")
+
+    joined_matches = relationship("MatchModel", secondary=player_in_match, back_populates="players")
 
     def __init__(self, username, email, description, is_admin):
         self.username = username

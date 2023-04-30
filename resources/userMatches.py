@@ -15,3 +15,39 @@ class OwnedMatches(Resource):
             return {"message": f"User has no owned matches"}, 404
         return {"message": f"User does not exist"}, 404
 
+
+    # Post New Match
+    @auth.login_required()
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("title", type=str, required=True, nullable=False)
+        parser.add_argument("description", type=str, required=False, nullable=False, default="")
+        parser.add_argument("location", type=str, required=True, nullable=False)
+        parser.add_argument("city", type=str, required=True, nullable=False)
+        parser.add_argument("date", type=str, required=True, nullable=False)
+        parser.add_argument("numPlayers", type=int, required=True, nullable=False)
+        parser.add_argument("sport", type=str, required=True, nullable=False)
+        parser.add_argument("ongoing", type=bool, required=True, nullable=False)
+        data = parser.parse_args()
+
+        try:
+            new_match = MatchModel(
+                data["title"],
+                data["description"],
+                data["location"],
+                data["city"],
+                data["date"],
+                data["numPlayers"],
+                data["sport"],
+                data["ongoing"],
+            )
+            owner = UserModel.get_by_username(g.user.username)
+            new_match.owner = owner
+
+            new_match.save_to_db()
+
+        except Exception:
+            return {"message": "An error occurred creating the match."}, 500
+
+        return {"match": new_match.json()}, 201
+

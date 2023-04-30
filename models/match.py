@@ -1,12 +1,17 @@
 from db import db
-from datetime import datetime
+
+
+from sqlalchemy.orm import relationship
+
 from flask_httpauth import HTTPTokenAuth
+
+from models.user import player_in_match
 
 auth = HTTPTokenAuth(scheme="Bearer")
 
 
-class MatchModel(db.Model):
 
+class MatchModel(db.Model):
     __tablename__ = "matches"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -21,6 +26,8 @@ class MatchModel(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     owner = db.relationship("UserModel", foreign_keys=[owner_id], back_populates="owned_matches")
+
+    players = relationship("UserModel", secondary=player_in_match, back_populates="joined_matches")
 
     def __init__(self, title, description, location, city, date, numplayers, sport, ongoing):
         self.title = title
@@ -77,4 +84,4 @@ class MatchModel(db.Model):
     def get_owned_by_account(cls, user_id, amount, offset):
         q = cls.query.filter_by(owner_id=user_id)
         return q.limit(amount).offset(offset).all()
-    #q.order_by(cls.time.desc()).limit(amount).offset(offset).all()
+    # q.order_by(cls.time.desc()).limit(amount).offset(offset).all()

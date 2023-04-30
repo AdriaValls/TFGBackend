@@ -16,7 +16,7 @@ class Match(Resource):
             return {"match": match.json()}, 200
         return {"message": f"Could not find an a match with that id"}, 404
 
-    # Post New Match
+    # TODO: Join match instead
     @auth.login_required()
     def post(self):
         parser = reqparse.RequestParser()
